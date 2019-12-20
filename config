@@ -1,0 +1,9 @@
+# 模块的名字
+ngx_addon_name=ngx_http_ndg_hello_module
+# 模块的类型
+ngx_module_type=HTTP
+# 模块在 c 代码里的名字
+ngx_module_name=ngx_http_ndg_hello_module
+# 模块的源码
+ngx_module_srcs="$ngx_addon_dir/ngx_http_ndg_hello_module.c"
+. auto/module
