@@ -69,6 +69,8 @@ ngx_http_ndg_echo_handler(ngx_http_request_t *r)
 {
     size_t len;
     ngx_int_t rc;
+    ngx_buf_t *b;
+    ngx_chain_t *out;
     ngx_http_ndg_echo_loc_conf_t *lcf;
 
     if (!(r->method & NGX_HTTP_GET)) {  //检查请求方法
@@ -79,6 +81,26 @@ ngx_http_ndg_echo_handler(ngx_http_request_t *r)
     lcf = ngx_http_get_module_loc_conf(r, ngx_http_ndg_echo_module);
 
     len = lcf->msg.len;
+    if (r->args.len) {
+        len += r->args.len + 1;
+    }
+    r->headers_out.status = NGX_HTTP_OK;
+    r->headers_out.content_length_n = len;
+    rc = ngx_create_temp_buf(r->pool, len);     //分配缓冲区
+
+    if (r->args.len) {
+        b->last = ngx_cpymem(b->pos, r->args.data, r->args.len);
+        *(b->last++) = ',';
+    }
+    b->last = ngx_cpymem(b->last, lcf->msg.data, lcf->msg.len);
+
+    b->last_buf = 1;
+    b->last_in_chain = 1;
+
+    out = ngx_alloc_chain_link(r->pool);
+    out->buf = b;
+    out->next = NULL;
+    return ngx_http_output_filter(r, out);
 }
 
 static ngx_int_t
