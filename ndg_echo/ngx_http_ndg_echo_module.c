@@ -1,6 +1,8 @@
 #include <ngx_http.h>
 
-static ngx_int_t ngx_http_ndg_echo();
+static char *ngx_http_ndg_echo(ngx_conf_t* cf, ngx_command_t *cmd, void *conf);
+static void *ngx_http_ndg_echo_create_loc_conf(ngx_conf_t* cf);
+static ngx_int_t ngx_http_ndg_echo_handler(ngx_http_request_t *r);
 
 typedef struct {
     ngx_str_t msg;      //存储配置文件里的字符串
@@ -86,7 +88,11 @@ ngx_http_ndg_echo_handler(ngx_http_request_t *r)
     }
     r->headers_out.status = NGX_HTTP_OK;
     r->headers_out.content_length_n = len;
-    rc = ngx_create_temp_buf(r->pool, len);     //分配缓冲区
+    rc = ngx_http_send_header(r);
+    if (rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
+        return rc;
+    }
+    b = ngx_create_temp_buf(r->pool, len);     //分配缓冲区
 
     if (r->args.len) {
         b->last = ngx_cpymem(b->pos, r->args.data, r->args.len);
@@ -103,7 +109,7 @@ ngx_http_ndg_echo_handler(ngx_http_request_t *r)
     return ngx_http_output_filter(r, out);
 }
 
-static ngx_int_t
+static char *
 ngx_http_ndg_echo(ngx_conf_t* cf, ngx_command_t *cmd, void *conf)
 {
     ngx_http_core_loc_conf_t* clcf;
