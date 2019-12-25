@@ -41,3 +41,13 @@ curl -v 'http://localhost/hello'
 - 功能：
   - 向客户端输出一个指定的字符串信息（由 ndg_echo 指定）
   - uri 里的参数信息也一并输出
+
+# ndg_filter 模块
+
+## 设计
+
+- 模块名：ngx_http_ndg_filter_module
+- 配置指令：
+  - ndg_header：接受多个 keyval 参数，加入到响应头
+  - ndg_footer：接受一个字符串参数，加入到响应体末尾
+- 使用 ctx 记录状态，防止重复添加

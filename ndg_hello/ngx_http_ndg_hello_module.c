@@ -17,15 +17,15 @@ typedef struct {
 static ngx_command_t ngx_http_ndg_hello_cmds[] =
 {
     {
-        ngx_string("ndg_hello"),                                        //指令的名字
-        NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,    //指令的作用域和类型
-        ngx_conf_set_flag_slot,                                         //解析函数指针
-        NGX_HTTP_LOC_CONF_OFFSET,                       //数据的存储位置
-        offsetof(
+        ngx_string("ndg_hello"),                   //指令的名字
+        NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,           //指令的作用域和类型
+        ngx_conf_set_flag_slot,                    //解析函数指针
+        NGX_HTTP_LOC_CONF_OFFSET,                  //数据的存储位置
+        offsetof(                                  //数据的具体存储变量
             ngx_http_ndg_hello_loc_conf_t, enable),
         NULL
     },
-    ngx_null_command                                                    //空对象，结束数组
+    ngx_null_command                               //空对象，结束数组
 };
 
 /**
@@ -33,14 +33,14 @@ static ngx_command_t ngx_http_ndg_hello_cmds[] =
  */
 static ngx_http_module_t ngx_http_ndg_hello_module_ctx = 
 {
-    NULL,                                                                         //解析配置文件前被调用
-    ngx_http_ndg_hello_init,                                //解析配置文件后被调用
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    ngx_http_ndg_hello_create_loc_conf,     //创建location域的配置结构
-    NULL,
+    NULL,                                   //解析配置文件前被调用
+    ngx_http_ndg_hello_init,                //解析配置文件后被调用
+    NULL,                                   //创建 HTTP main 域的配置结构
+    NULL,                                   //初始化 HTTP main 域的配置结构
+    NULL,                                   //创建 Server 域的配置结构
+    NULL,                                   //合并 Server 域的配置结构
+    ngx_http_ndg_hello_create_loc_conf,     //创建 location 域的配置结构
+    NULL,                                   //合并 location 域的配置结构
 };
 
 /**
@@ -48,17 +48,17 @@ static ngx_http_module_t ngx_http_ndg_hello_module_ctx =
  */
 ngx_module_t ngx_http_ndg_hello_module =
 {
-    NGX_MODULE_V1,                                          //标准的填充宏
-    &ngx_http_ndg_hello_module_ctx,         //配置功能函数
-    ngx_http_ndg_hello_cmds,                        //配置指令数组
-    NGX_HTTP_MODULE,                                    //http 模块必须的tag
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NGX_MODULE_V1,                    //标准的填充宏
+    &ngx_http_ndg_hello_module_ctx,   //配置功能函数
+    ngx_http_ndg_hello_cmds,          //配置指令数组
+    NGX_HTTP_MODULE,                  //http 模块必须的 tag
+    NULL,                             //init master
+    NULL,                             //init module
+    NULL,                             //init process
+    NULL,                             //init thread
+    NULL,                             //exit thread
+    NULL,                             //exit process
+    NULL,                             //exit master
     NGX_MODULE_V1_PADDING
 };
 
