@@ -41,7 +41,22 @@ curl -v 'http://localhost/hello'
 - 功能：
   - 向客户端输出一个指定的字符串信息（由 ndg_echo 指定）
   - uri 里的参数信息也一并输出
+## 编译
+假设该模块位于 /home/test/ndg_module_example/ndg_echo 文件夹下：
+```
+./configure \
+--add-module=/home/test/ndg_module_example/ndg_echo
+make
+sudo make install
+```
+## 测试验证
 
+配置参数
+```
+location /hello {
+    ndg_echo "hello nginx\n";
+}
+```
 # ndg_filter 模块
 
 ## 设计
