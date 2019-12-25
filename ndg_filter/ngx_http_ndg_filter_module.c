@@ -1,5 +1,10 @@
 #include <ngx_http.h>
 
+static void *ngx_http_ndg_filter_create_loc_conf(ngx_conf_t* cf);
+static ngx_int_t ngx_http_ndg_filter_init(ngx_conf_t *cf);
+static ngx_int_t ngx_http_ndg_header_filter(ngx_http_request_t *r);
+static ngx_int_t ngx_http_ndg_body_filter(ngx_http_request_t *r);
+
 typedef struct {
     ngx_array_t* headers;          //存储修改响应头的 kv 数据
     ngx_str_t footer;              //存储修改响应体的字符串
@@ -41,8 +46,11 @@ static ngx_int_t ngx_http_ndg_filter_init(ngx_conf_t* cf)
 /**
  * 过滤响应头
  */
-void ngx_http_ndg_header_filter()
+static ngx_int_t ngx_http_ndg_header_filter(ngx_http_request_t *r)
 {
+    ngx_http_ndg_filter_loc_conf_t* lcf;
+    ngx_int_t i;
+
     ngx_http_ndg_filter_ctx_t* ctx =            //获取环境数据
             ngx_http_get_module_ctx(r, ngx_http_ndg_filter_module);
     if (ctx == NULL) {                          //没有 ctx 则内存池创建
@@ -61,9 +69,77 @@ void ngx_http_ndg_header_filter()
         ngx_keyval_t* data = lcf->headers->nelts;//指向数组元素
 
         for (i = 0; i < lcf->headers->nelts; ++i) {
-            *h = ngx_list_push(&r->headers_out.headers);//加入响应头链表里
+            ngx_table_elt_t *h = ngx_list_push(&r->headers_out.headers);//加入响应头链表里
             h->hash = 1;
-            
+            h->key = data[i].key;
+            h->value = data[i].value;
         }
+
+        ctx->flag = 1;
+    }
+
+    if (lcf->footer.len && r->headers_out.content_length_n > 0) {
+        r->headers_out.content_length_n += lcf->footer.len;
+        ctx->flag = 1;
+    }
+
+    return ngx_http_next_header_filter(r);
+}
+
+static ngx_int_t ngx_http_ndg_body_filter(ngx_http_request_t *r)
+{
+    if (in == NULL) {
     }
 }
+
+/**
+ * 为什么要用 static
+ */
+static ngx_command_t ngx_http_ndg_filter_cmds[] =
+{
+    {
+        ngx_string("ndg_header"),//添加头信息的指令
+        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,//两个参数
+        ngx_conf_set_keyval_slot,//Nginx 的解析 kv 参数
+        NGX_HTTP_LOC_CONF_OFFSET,//只能在 location 里出现
+        offsetof(ngx_http_ndg_filter_loc_conf_t, headers),
+        NULL
+    },
+    {
+        ngx_string("ndg_footer"),//添加末尾字符串
+        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,//一个参数
+        ngx_conf_set_str_slot,//Nginx 的解析函数
+        NGX_HTTP_LOC_CONF_OFFSET,//只能在 location 里出现
+        offsetof(ngx_http_ndg_filter_loc_conf_t, footer),
+        NULL
+    },
+    ngx_null_command
+};
+
+static ngx_http_module_t ngx_http_ndg_filter_module_ctx =
+{
+    NULL,                                 //preconfiguration
+    ngx_http_ndg_filter_init,             //postconfiguration
+    NULL,                                 //create main configuration
+    NULL,                                 //init main configuration
+    NULL,                                 //create server configuration
+    NULL,                                 //merge server configuration
+    ngx_http_ndg_filter_create_loc_conf,  //create location configuration
+    NULL,                                 //merge location configuration
+};
+
+ngx_module_t ngx_http_ndg_filter_module =//模块定义，不能是静态变量
+{
+    NGX_MODULE_V1,//标准的填充宏
+    &ngx_http_ndg_filter_module_ctx,//函数指针表
+    ngx_http_ndg_filter_cmds,//配置指令数值
+    NGX_HTTP_MODULE,//http 模块必须的标记
+    NULL,//init master
+    NULL,//init module
+    NULL,//init process
+    NULL,//init thread
+    NULL,//exit thread
+    NULL,//exit process
+    NULL,//exit master
+    NGX_MODULE_V1_PADDING//标准的填充宏
+};
