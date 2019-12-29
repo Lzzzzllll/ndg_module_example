@@ -1,14 +1,14 @@
-# nginx 模块开发实例
+# 1. nginx 模块开发实例
 - ndg_hello
 - ndg_echo
-# ndg_hello 模块
-## ndg_hello 模块设计
+# 2. ndg_hello 模块
+#### 2.1 ndg_hello 模块设计
 - 模块名：ngx_http_ndg_hello_module
 - 配置指令：ndg_hello on | off，开关模块功能，只能在 location 里配置
 - 不直接处理 HTTP 请求，只在 URL 重写阶段里执行
 - 根据配置指令的 on|off 决定输出字符串的内容
 - 编写 config 脚本，用 `--add-module` 静态链接选项集成进Nginx
-## 编译
+#### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_hello 文件夹下：
 ```
 ./configure \
@@ -16,7 +16,7 @@
 make
 sudo make install
 ```
-## 测试验证
+#### 测试验证
 配置参数
 ```
 master_process off;
@@ -31,8 +31,11 @@ location /hello {
 curl -v 'http://localhost/hello'
 ```
 可在控制台或日志中查找到相应字符
-# ndg_echo 模块
-## ndg_echo 模块设计
+
+## 2.2 Nginx 请求处理
+
+### ndg_echo 模块
+#### ndg_echo 模块设计
 - 模块名：ngx_http_ndg_echo_module
 - 配置指令：ndg_echo，接受一个参数
 - 是一个内容处理模块
@@ -41,7 +44,7 @@ curl -v 'http://localhost/hello'
 - 功能：
   - 向客户端输出一个指定的字符串信息（由 ndg_echo 指定）
   - uri 里的参数信息也一并输出
-## 编译
+#### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_echo 文件夹下：
 ```
 ./configure \
@@ -49,7 +52,7 @@ curl -v 'http://localhost/hello'
 make
 sudo make install
 ```
-## 测试验证
+#### 测试验证
 
 配置参数
 ```
@@ -57,12 +60,25 @@ location /hello {
     ndg_echo "hello nginx\n";
 }
 ```
-# ndg_filter 模块
+### ndg_filter 模块
 
-## 设计
+#### 设计
 
 - 模块名：ngx_http_ndg_filter_module
 - 配置指令：
   - ndg_header：接受多个 keyval 参数，加入到响应头
   - ndg_footer：接受一个字符串参数，加入到响应体末尾
 - 使用 ctx 记录状态，防止重复添加
+
+## 2.3 Nginx 请求转发
+
+### stream 模块
+
+#### 设计
+
+- 模块名：ngx_http_ndg_upstream_module;
+- 注册处理函数：使用 content handler 方式
+- 指令：ndg_upstream_pass 启动转发处理
+- upstream 框架上游的连接参数硬编码，不在配置文件里设置
+- 仅支持 GET 方法，转发 $args，末尾附加一个`\n` 标记数据的结束
+- 以 `\n` 为结束标记解析响应头，把收到的数据原样转发到下游
