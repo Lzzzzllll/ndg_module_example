@@ -1,8 +1,8 @@
 #include <ngx_http.h>
 
 static void *ngx_http_ndg_upstream_create_loc_conf(ngx_conf_t* cf);
-static void *ngx_http_ndg_upstream_merge_loc_conf(ngx_conf_t* cf, void *parent, void *child);
-static ngx_int_t *ngx_http_ndg_upstream_create_request(ngx_http_request_t *r);
+static char *ngx_http_ndg_upstream_merge_loc_conf(ngx_conf_t* cf, void *parent, void *child);
+static ngx_int_t ngx_http_ndg_upstream_create_request(ngx_http_request_t *r);
 static ngx_int_t ngx_http_ndg_upstream_reinit_request(ngx_http_request_t *r);
 static ngx_int_t ngx_http_ndg_upstream_process_header(ngx_http_request_t *r);
 static ngx_int_t ngx_http_ndg_upstream_handler(ngx_http_request_t *r);
@@ -69,7 +69,7 @@ static void *ngx_http_ndg_upstream_create_loc_conf(ngx_conf_t* cf)
     return conf;
 }
 
-static void *ngx_http_ndg_upstream_merge_loc_conf(ngx_conf_t* cf,
+static char *ngx_http_ndg_upstream_merge_loc_conf(ngx_conf_t* cf,
          void *parent, void *child)
 {
     ngx_http_ndg_upstream_loc_conf_t* prev = parent;
@@ -93,7 +93,7 @@ static void *ngx_http_ndg_upstream_merge_loc_conf(ngx_conf_t* cf,
 /**
  * 引用 $args，把缓冲区链表挂到 r->upstream->request_bufs 转发到上游
  */
-static ngx_int_t *ngx_http_ndg_upstream_create_request(ngx_http_request_t *r)
+static ngx_int_t ngx_http_ndg_upstream_create_request(ngx_http_request_t *r)
 {
     ngx_str_t lf = ngx_string("\n");//换行符常量
 
@@ -152,14 +152,13 @@ static void ngx_http_ndg_upstream_finalize_request(){}
  */
 static ngx_int_t ngx_http_ndg_upstream_handler(ngx_http_request_t *r)
 {
-    ngx_int_t rc;
     ngx_http_upstream_t *u;
     ngx_http_ndg_upstream_loc_conf_t *lcf;
 
     if (!(r->method & NGX_HTTP_GET)) {
         return NGX_HTTP_NOT_ALLOWED;
     }
-    rc = ngx_http_discard_request_body(r);
+    ngx_http_discard_request_body(r);
 
     if (ngx_http_upstream_create(r) != NGX_OK) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
