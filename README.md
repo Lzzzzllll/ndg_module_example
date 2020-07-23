@@ -1,25 +1,36 @@
 # 1. nginx 模块开发实例
 - ndg_hello
 - ndg_echo
-## 1.1 Nginx 开发示例
-### 1.1.2 ndg_hello 模块
+## 1.1 Nginx 开发示例 - ndg_hello 模块
+- 配置指令、参数
+- 如何访问配置参数、如何处理 TCP/HTTP 请求
+- 如何编译集成进 Nginx
 
-#### 设计
+##### 设计
 
-- 模块名：ngx_http_ndg_hello_module
-- 配置指令：ndg_hello on | off，开关模块功能，只能在 location 里配置
-- 不直接处理 HTTP 请求，只在 URL 重写阶段里执行
+- 模块名：**ngx_http_ndg_hello_module**
+- 配置指令：**ndg_hello on | off**，开关模块功能，只能在 location 里配置
+- 不直接处理 HTTP 请求，只在 **URL 重写阶段**里执行
 - 根据配置指令的 on|off 决定输出字符串的内容
 - 编写 config 脚本，用 `--add-module` 静态链接选项集成进Nginx
-#### 编译
+##### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_hello 文件夹下：
 ```
 ./configure \
+--prefix=/opt/nginx \
+--with-stream \
+--with-threads \
+--with-pcre=/home/renzheng/CLionProjects/pcre \
+--with-http_ssl_module --with-http_v2_module \
+--without-http_fastcgi_module \
+--build="renzheng build at `date +%Y%m%d`" \
+--with-debug \
+--add-module=/home/renzheng/CLionProjects/ndg_module_example/
 --add-module=/home/test/ndg_module_example/ndg_hello
 make
 sudo make install
 ```
-#### 测试验证
+##### 测试验证
 配置参数
 ```
 master_process off;
@@ -38,7 +49,7 @@ curl -v 'http://localhost/hello'
 ## 1.2 Nginx 请求处理
 
 ### 1.2.1 ndg_echo 模块
-#### 设计
+##### 设计
 - 模块名：ngx_http_ndg_echo_module
 - 配置指令：ndg_echo，接受一个参数
 - 是一个内容处理模块
@@ -47,15 +58,23 @@ curl -v 'http://localhost/hello'
 - 功能：
   - 向客户端输出一个指定的字符串信息（由 ndg_echo 指定）
   - uri 里的参数信息也一并输出
-#### 编译
+##### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_echo 文件夹下：
 ```
 ./configure \
---add-module=/home/test/ndg_module_example/ndg_echo
+--prefix=/opt/nginx \
+--with-stream \
+--with-threads \
+--with-pcre=/home/renzheng/CLionProjects/pcre \
+--with-http_ssl_module --with-http_v2_module \
+--without-http_fastcgi_module \
+--build="renzheng build at `date +%Y%m%d`" \
+--with-debug \
+--add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_echo
 make
 sudo make install
 ```
-#### 测试验证
+##### 测试验证
 
 配置参数
 ```
@@ -65,7 +84,7 @@ location /hello {
 ```
 ### 1.2.2 ndg_filter 模块
 
-#### 设计
+##### 设计
 
 - 模块名：ngx_http_ndg_filter_module
 - 配置指令：
@@ -77,7 +96,7 @@ location /hello {
 
 ### 1.3.1 upstream 模块
 
-#### 设计
+##### 设计
 
 - 模块名：ngx_http_ndg_upstream_module;
 - 注册处理函数：使用 content handler 方式
@@ -86,7 +105,7 @@ location /hello {
 - 仅支持 GET 方法，转发 $args，末尾附加一个`\n` 标记数据的结束
 - 以 `\n` 为结束标记解析响应头，把收到的数据原样转发到下游
 
-#### 编译
+##### 编译
 
 ```
 ./configure \
@@ -102,14 +121,14 @@ sudo make install
 
 ### 1.4.1 ndg_subrequest 模块
 
-#### 设计
+##### 设计
 
 - 模块名：ngx_http_subrequest_module，工作在 access 阶段
 - 指令：ndg_subrequest
   - 用于确定发起子请求使用的 uri，即 location
 - 模块检查子请求返回的状态码决定 allow 或 deny
 
-#### 编译
+##### 编译
 
 ```
 ./configure \
@@ -122,7 +141,7 @@ make
 sudo make install
 ```
 
-#### 测试验证
+##### 测试验证
 
 在配置文件 nginx.conf 的 server 里添加以下 location：
 
@@ -159,6 +178,3 @@ ngd subrequest ok, body is ...
 TODO
 
 ## 1.5 Nginx 变量
-
-
-

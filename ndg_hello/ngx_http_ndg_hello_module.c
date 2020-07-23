@@ -1,18 +1,19 @@
 #include <ngx_http.h>
 
-static void *ngx_http_ndg_hello_create_loc_conf(ngx_conf_t* cf);
+static void * (ngx_conf_t* cf);
 static ngx_int_t ngx_http_ndg_hello_handler(ngx_http_request_t *r);
 static ngx_int_t ngx_http_ndg_hello_init(ngx_conf_t* cf);
 
 /**
- * 配置的数据结构
+ * 配置的数据结构体
  */
 typedef struct {
     ngx_flag_t enable;             //标志变量
 } ngx_http_ndg_hello_loc_conf_t;
 
 /**
- * 配置的解析
+ * 解析配置指令
+ * 使用 ngx_command_t 和相关解析函数
  */
 static ngx_command_t ngx_http_ndg_hello_cmds[] =
 {
@@ -29,7 +30,7 @@ static ngx_command_t ngx_http_ndg_hello_cmds[] =
 };
 
 /**
- * 集成配置函数
+ * 定义 http 模块的功能函数
  */
 static ngx_http_module_t ngx_http_ndg_hello_module_ctx = 
 {
@@ -44,7 +45,7 @@ static ngx_http_module_t ngx_http_ndg_hello_module_ctx =
 };
 
 /**
- * 集成配置指令
+ * 定义模块的数据结构体
  */
 ngx_module_t ngx_http_ndg_hello_module =
 {
@@ -63,7 +64,7 @@ ngx_module_t ngx_http_ndg_hello_module =
 };
 
 /**
- * 创建配置数据
+ * 为 ndg_hello 模块配置的数据结构体分配内存
  */
 static void *
 ngx_http_ndg_hello_create_loc_conf(ngx_conf_t* cf)  //创建配置数据结构
@@ -85,8 +86,8 @@ ngx_http_ndg_hello_create_loc_conf(ngx_conf_t* cf)  //创建配置数据结构
 static ngx_int_t
 ngx_http_ndg_hello_handler(ngx_http_request_t *r)
 {
-    ngx_http_ndg_hello_loc_conf_t* lcf;                           //配置结构体指针
-    lcf = ngx_http_get_module_loc_conf(                         //获取配置数据
+    ngx_http_ndg_hello_loc_conf_t* lcf;                  //配置结构体指针
+    lcf = ngx_http_get_module_loc_conf(                  //获取配置数据
         r, ngx_http_ndg_hello_module);
     if (lcf->enable) {
         printf("hello nginx\n");
