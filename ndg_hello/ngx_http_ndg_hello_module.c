@@ -1,6 +1,6 @@
 #include <ngx_http.h>
 
-static void * (ngx_conf_t* cf);
+static void *ngx_http_ndg_hello_create_loc_conf(ngx_conf_t* cf);
 static ngx_int_t ngx_http_ndg_hello_handler(ngx_http_request_t *r);
 static ngx_int_t ngx_http_ndg_hello_init(ngx_conf_t* cf);
 

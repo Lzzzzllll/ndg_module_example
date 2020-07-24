@@ -32,18 +32,18 @@ typedef struct {
 static ngx_command_t ngx_http_ndg_filter_cmds[] =
 {
     {
-        ngx_string("ndg_header"),//添加头信息的指令
-        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,//两个参数
-        ngx_conf_set_keyval_slot,//Nginx 的解析 kv 参数
-        NGX_HTTP_LOC_CONF_OFFSET,//只能在 location 里出现
+        ngx_string("ndg_header"),         //添加头信息的指令
+        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2, //该指令接收两个参数
+        ngx_conf_set_keyval_slot,         //解析函数
+        NGX_HTTP_LOC_CONF_OFFSET,         //只能在 location 里出现
         offsetof(ngx_http_ndg_filter_loc_conf_t, headers),
         NULL
     },
     {
-        ngx_string("ndg_footer"),//添加末尾字符串
-        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,//一个参数
-        ngx_conf_set_str_slot,//Nginx 的解析函数
-        NGX_HTTP_LOC_CONF_OFFSET,//只能在 location 里出现
+        ngx_string("ndg_footer"),         //添加末尾字符串
+        NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, //该指令接收一个参数
+        ngx_conf_set_str_slot,            //Nginx 的解析函数
+        NGX_HTTP_LOC_CONF_OFFSET,         //只能在 location 里出现
         offsetof(ngx_http_ndg_filter_loc_conf_t, footer),
         NULL
     },

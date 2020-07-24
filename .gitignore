@@ -1,5 +1,7 @@
 # vscode configure
 .vscode
+# clion configure
+.idea/
 # Prerequisites
 *.d
 

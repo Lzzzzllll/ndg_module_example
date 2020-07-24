@@ -1,6 +1,4 @@
 # 1. nginx 模块开发实例
-- ndg_hello
-- ndg_echo
 ## 1.1 Nginx 开发示例 - ndg_hello 模块
 - 配置指令、参数
 - 如何访问配置参数、如何处理 TCP/HTTP 请求
@@ -15,7 +13,7 @@
 - 编写 config 脚本，用 `--add-module` 静态链接选项集成进Nginx
 ##### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_hello 文件夹下：
-```
+```shell
 ./configure \
 --prefix=/opt/nginx \
 --with-stream \
@@ -25,8 +23,7 @@
 --without-http_fastcgi_module \
 --build="renzheng build at `date +%Y%m%d`" \
 --with-debug \
---add-module=/home/renzheng/CLionProjects/ndg_module_example/
---add-module=/home/test/ndg_module_example/ndg_hello
+--add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_hello
 make
 sudo make install
 ```
@@ -41,7 +38,7 @@ location /hello {
 }
 ```
 保存重启 nginx 后，使用 curl 访问
-```
+```shell
 curl -v 'http://localhost/hello'
 ```
 可在控制台或日志中查找到相应字符
@@ -50,8 +47,8 @@ curl -v 'http://localhost/hello'
 
 ### 1.2.1 ndg_echo 模块
 ##### 设计
-- 模块名：ngx_http_ndg_echo_module
-- 配置指令：ndg_echo，接受一个参数
+- 模块名：**ngx_http_ndg_echo_module**
+- 配置指令：**ndg_echo**，接受一个参数
 - 是一个内容处理模块
 - 只接受 GET 请求方法
 - 使用 content handler 的方式注册处理函数
@@ -60,7 +57,7 @@ curl -v 'http://localhost/hello'
   - uri 里的参数信息也一并输出
 ##### 编译
 假设该模块位于 /home/test/ndg_module_example/ndg_echo 文件夹下：
-```
+```shell
 ./configure \
 --prefix=/opt/nginx \
 --with-stream \
@@ -79,17 +76,19 @@ sudo make install
 配置参数
 ```
 location /hello {
-    ndg_echo "hello nginx\n";
+    ndg_echo "renz2048 ndg echo module\n";
 }
 ```
+在浏览器里访问 http://localhost/hello ，界面显示 `renz2048 ndg echo module`
+
 ### 1.2.2 ndg_filter 模块
 
 ##### 设计
 
-- 模块名：ngx_http_ndg_filter_module
+- 模块名：**ngx_http_ndg_filter_module**
 - 配置指令：
-  - ndg_header：接受多个 keyval 参数，加入到响应头
-  - ndg_footer：接受一个字符串参数，加入到响应体末尾
+  - **ndg_header**：接受多个 keyval 参数，加入到响应头
+  - **ndg_footer**：接受一个字符串参数，加入到响应体末尾
 - 使用 ctx 记录状态，防止重复添加
 
 ## 1.3 Nginx 请求转发
@@ -175,6 +174,9 @@ ngd subrequest ok, body is ...
 2020/01/11 16:29:01 [alert] 1610#0: worker process 1611 exited on signal 11 (core dumped)
 ```
 
-TODO
-
 ## 1.5 Nginx 变量
+
+```
+
+```
+

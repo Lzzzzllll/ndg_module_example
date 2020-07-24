@@ -6,4 +6,4 @@ ngx_module_type=HTTP
 ngx_module_name=ngx_http_ndg_hello_module
 # 模块的源码
 ngx_module_srcs="$ngx_addon_dir/ngx_http_ndg_hello_module.c"
-. auto/modulemak
+. auto/module
