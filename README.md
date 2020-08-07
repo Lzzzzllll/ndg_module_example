@@ -15,15 +15,15 @@
 假设该模块位于 /home/test/ndg_module_example/ndg_hello 文件夹下：
 ```shell
 ./configure \
---prefix=/opt/nginx \
---with-stream \
---with-threads \
---with-pcre=/home/renzheng/CLionProjects/pcre \
---with-http_ssl_module --with-http_v2_module \
---without-http_fastcgi_module \
---build="renzheng build at `date +%Y%m%d`" \
---with-debug \
---add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_hello
+ --prefix=/opt/nginx \
+ --with-stream \
+ --with-threads \
+ --with-pcre=/home/renzheng/CLionProjects/pcre \
+ --with-http_ssl_module --with-http_v2_module \
+ --without-http_fastcgi_module \
+ --build="renzheng build at `date +%Y%m%d`" \
+ --with-debug \
+ --add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_hello
 make
 sudo make install
 ```
@@ -59,15 +59,15 @@ curl -v 'http://localhost/hello'
 假设该模块位于 /home/test/ndg_module_example/ndg_echo 文件夹下：
 ```shell
 ./configure \
---prefix=/opt/nginx \
---with-stream \
---with-threads \
---with-pcre=/home/renzheng/CLionProjects/pcre \
---with-http_ssl_module --with-http_v2_module \
---without-http_fastcgi_module \
---build="renzheng build at `date +%Y%m%d`" \
---with-debug \
---add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_echo
+ --prefix=/opt/nginx \
+ --with-stream \
+ --with-threads \
+ --with-pcre=/home/renzheng/CLionProjects/pcre \
+ --with-http_ssl_module --with-http_v2_module \
+ --without-http_fastcgi_module \
+ --build="renzheng build at `date +%Y%m%d`" \
+ --with-debug \
+ --add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_echo
 make
 sudo make install
 ```
@@ -91,6 +91,54 @@ location /hello {
   - **ndg_footer**：接受一个字符串参数，加入到响应体末尾
 - 使用 ctx 记录状态，防止重复添加
 
+##### 编译
+
+```shell
+./configure \
+ --prefix=/opt/nginx \
+ --with-stream \
+ --with-threads \
+ --with-pcre=/home/renzheng/CLionProjects/pcre \
+ --with-http_ssl_module --with-http_v2_module \
+ --without-http_fastcgi_module \
+ --build="renzheng build at `date +%Y%m%d`" \
+ --with-debug \
+ --add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_echo \
+ --add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_filter
+make
+sudo make install
+```
+
+##### 测试验证
+
+配置参数
+
+```
+location /filter {
+    ndg_hello on;
+    ndg_echo "renz2048 ndg echo module\n";
+    ndg_header x-name renz2048;
+    ndg_header x-value trigger;
+    ndg_footer "copyright renz2048!\n";
+}
+```
+
+`sudo /opt/nginx/sbin/nginx -c /opt/nginx/conf/nginx.conf -s reload` 重启 nginx 服务。
+
+浏览器访问 http://localhost/filter ，界面显示：
+
+```
+renz2048 ndg echo module
+copyright renz2048!
+```
+
+按 F12 ，选择 Network->Headers ，再 Response Headers 中显示：
+
+```
+x-name: renz2048
+x-value: trigger
+```
+
 ## 1.3 Nginx 请求转发
 
 ### 1.3.1 upstream 模块
@@ -106,14 +154,60 @@ location /hello {
 
 ##### 编译
 
-```
+```shell
 ./configure \
---add-module=/home/renz/work/ndg_module_example/ndg_echo \
---add-module=/home/renz/work/ndg_module_example/ndg_filter \
---add-module=/home/renz/work/ndg_module_example/ndg_upstream \
---with-stream --with-debug --prefix=/opt/nginx
+ --prefix=/opt/nginx \
+ --with-stream \
+ --with-threads \
+ --with-pcre=/home/renzheng/CLionProjects/pcre \
+ --with-http_ssl_module --with-http_v2_module \
+ --without-http_fastcgi_module \
+ --build="renzheng build at `date +%Y%m%d`" \
+ --with-debug \
+ --add-module=/home/renzheng/CLionProjects/ndg_module_example/ndg_upstream
 make
 sudo make install
+```
+
+测试验证
+
+```
+http {
+    server {
+        location /upstream {
+            ndg_upstream_pass backend;
+        }
+    }
+    
+    upstream backend {
+        server 127.0.0.1:80
+    }
+}
+```
+
+在浏览器访问 http://localhost:8080/upstream?xxx ，通过抓包显示 http 流如下：
+
+```
+GET /upstream?xxx HTTP/1.1
+Host: localhost
+User-Agent: curl/7.68.0
+Accept: */*
+
+HTTP/1.1 404 Not Found
+Date: Fri, 07 Aug 2020 03:34:54 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Content-Length: 271
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>404 Not Found</title>
+</head><body>
+<h1>Not Found</h1>
+<p>The requested URL was not found on this server.</p>
+<hr>
+<address>Apache/2.4.41 (Ubuntu) Server at localhost Port 80</address>
+</body></html>
 ```
 
 ## 1.4 Nginx 子请求
@@ -129,7 +223,7 @@ sudo make install
 
 ##### 编译
 
-```
+```shell
 ./configure \
 --add-module=/home/renz/work/ndg_module_example/ndg_echo \
 --add-module=/home/renz/work/ndg_module_example/ndg_filter \
